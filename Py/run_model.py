@@ -40,7 +40,7 @@ import Adage as ad
 #from keras import initializers
 
 
-def run_model(input_file, seed=123, epochs=50, kl1=0, kl2=0, lr = 0.01,
+def run_model(input_file, seed=123, enc_dim = 300, epochs=50, kl1=0, kl2=0, lr = 0.01,
 			  act='sigmoid', init='glorot_uniform', tied=True, batch_size=10,
 			  v=1):
 	"""
@@ -51,7 +51,7 @@ def run_model(input_file, seed=123, epochs=50, kl1=0, kl2=0, lr = 0.01,
 	all_comp = pd.read_csv(input_file, index_col=0)
 	 # this is the size of our input
 	gene_num = np.size(all_comp, 0)
-	encoding_dim = 300
+	encoding_dim = enc_dim
 
 
 	x_train, x_train_noisy = prep_data(all_comp, seed)
@@ -69,7 +69,9 @@ def run_model(input_file, seed=123, epochs=50, kl1=0, kl2=0, lr = 0.01,
 
 	weights, b_weights = autoencoder.get_weights()[0:2]
 
-	file_desc = (input_file[:-4] + '_seed:' + str(seed)
+	file_desc = (input_file[:-4]
+	             + '_seed:' + str(seed)
+	             + '_nodes:' + str(encoding_dim)
 				 + "_kl1:" + str(kl1)
 				 + "_kl2:" + str(kl2)
 				 +  "_act:" + act

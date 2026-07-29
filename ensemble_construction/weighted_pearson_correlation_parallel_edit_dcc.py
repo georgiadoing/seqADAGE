@@ -83,7 +83,7 @@ if __name__ == '__main__':
         print(seed)
         for file in os.listdir(netfolder):
             print(file)
-            if fnmatch.fnmatch(file, '*_s'+str(seed)+
+            if fnmatch.fnmatch(file, '*_'+str(seed)+ # '*_s'+str(seed)+
                                '*.csv'):
                 netfile = os.path.join(netfolder, file)
                 print("reading " + netfile)

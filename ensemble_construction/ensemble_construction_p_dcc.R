@@ -91,7 +91,7 @@ model_count <- 0
 for (seed in begin:end) {
   seed <- as.character(seed)
   print(seed)
-  netfile <- paste("s", seed,
+  netfile <- paste("_", seed,
                    sep = "")
   print(netfile)
   netfile <- list.files(netfolder, pattern = netfile)

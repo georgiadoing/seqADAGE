@@ -13,6 +13,7 @@
 *.h5
 *.keras
 *.ipynb_checkpoints
+*.pyc
 Py/hyperband_search_dir
 Py/__pycache__
 latent_interpretation/sepi_out_*

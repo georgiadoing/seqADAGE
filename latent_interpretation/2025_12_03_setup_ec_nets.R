@@ -10,7 +10,8 @@
 ################################################################################
 # Load data and models
 # compendium
-ec_comp <- read.csv('../data_files/ecoli_MG165plus_genome_part2_log_counts_norm_01.csv')
+#ec_comp <- read.csv('../data_files/ecoli_MG165plus_genome_part2_log_counts_norm_01.csv')
+ec_comp <- read.csv('../data_files/ecmg_mgsp_lcn01.csv')
 # gene precense-absence matrix
 gpa <- read.csv('ecoli_pan_genomev3_gene_presence_absence_ann.csv', 
                 stringsAsFactors = F)
@@ -37,7 +38,7 @@ ec_model_files <- list.files('/work/gd134/adage_models', pattern = "net450*")
 ec_models <- lapply(ec_model_files, function(x){
   m <- read.csv(paste0('/work/gd134/adage_models/',x),
                 stringsAsFactors = F,
-                sep = "\t", skip = 2, header = F, nrows  = 6390)
+                sep = "\t", skip = 2, header = F, nrows  = 4272) #6390
   rownames(m) <- rownames(ec_comp)
   m
 })

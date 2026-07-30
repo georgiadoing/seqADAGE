@@ -8,22 +8,17 @@
 #Email      : georgia.doing@duke.edu
 ################################################################################
 
-##SBATCH --partition=standard
-###SBATCH --partition=bigmem
+
 #SBATCH --job-name=aec
 #SBATCH --time=0-23:00:00
-##SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=georgia.doing@duke.edu
-##SBATCH --array=10001-15000%20
 #SBATCH -o /work/gd134/oe/%u-%x-%A-%a
-##SBATCH --mem=128G
-#SBATCH --mem-per-cpu=32G
-###SBATCH --hostlist=[k01-58]
+#SBATCH --mem-per-cpu=512G
 
-#
-#
+
+
 
 
 
@@ -32,5 +27,9 @@ cd $SLURM_SUBMIT_DIR
 
 conda activate radage
 
-Rscript ensemble_construction_p_dcc.R ../data_files/ecmgp_lcn01.csv \
+#Rscript ensemble_construction_p_dcc.R ../data_files/ecmgp_lcn01.csv \
 /work/gd134/adage_models/ /work/gd134/scratch 450 571 670 735 'weighted' /work/gd134/adage_models /work/gd134/wcor_ec_mgp_450.csv
+
+
+Rscript ensemble_construction_p_dcc.R ../data_files/ecmg_mgsp_lcn01.csv \
+/work/gd134/adage_models/ /work/gd134/scratch 450 672 771 735 'weighted' /work/gd134/adage_models /work/gd134/wcor_ec_mg_mgsp_450.csv

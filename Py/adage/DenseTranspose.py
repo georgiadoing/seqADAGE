@@ -40,9 +40,10 @@ class DenseTranspose(keras.layers.Layer):
             dense (keras.layers.Dense): The encoding layer to transpose
             activation (str): The decoder activation function
         """
+        super().__init__() #**kwargs
         self.dense = dense
         self.activation = keras.activations.get(activation)
-        super().__init__() #**kwargs
+        
     
     def build(self, batch_input_shape):
         """Builds decoder for batch, with bias"""
@@ -54,3 +55,10 @@ class DenseTranspose(keras.layers.Layer):
         """Calculates weights transpose and activation vals with bias"""
         z = tf.matmul(inputs, self.dense.kernel, transpose_b=True)
         return self.activation(z + self.biases)
+
+
+    def get_config(self):
+        config = super(CustomLayer, self).get_config()
+        config.update({"dense": self.dense,
+                      "activation": self.activation})
+        return config

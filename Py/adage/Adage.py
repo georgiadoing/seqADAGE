@@ -66,7 +66,7 @@ class Adage(object):
         """
         self.autoencoder = autoencoder
         self.history = history
-        self.weights = autoencoder.get_weights()[0]
+        self.weights = autoencoder.get_weights()[0] #np.zeros((train_comp.shape[0],train_comp.shape[0])) #
         self.loss = history.history['loss']
         self.val_loss = history.history['val_loss']
         self.hwg_cutoff = 2.5
@@ -88,6 +88,7 @@ class Adage(object):
 
     def set_hwg_cutoff(self, x):
         """Uses standard deviation cutoff to make high/low weight gene sets"""
+        self.weights = self.autoencoder.get_weights()[0]
         self.hwg_cutoff = x
         self.hw_genes = self.weights > (np.std(self.weights, axis=0) * x)
         self.hw_genes_down = self.weights < (np.std(self.weights, axis=0) * -x)
@@ -96,6 +97,7 @@ class Adage(object):
 
     def calc_enrich(self, path_file, all_sigs = True):
         """Calculates enrichments of high/low weight genes for a gene set"""
+        self.weights = self.autoencoder.get_weights()[0]
         hw_temp = self.hw_genes_all
         if(not all_sigs):
             hw_temp = self.hw_genes_all
@@ -139,9 +141,11 @@ class Adage(object):
 
     def set_act(self, comp):
         """Sets encoded activities of the training data"""
+        self.weights = self.autoencoder.get_weights()[0]
         self.activities = np.dot(comp, self.weights)
         return self.activities
 
     def calc_act(self, gene_exp):
         """Returns encoded activities of the training data"""
+        self.weights = self.autoencoder.get_weights()[0]
         return np.dot(gene_exp, self.weights)

@@ -79,18 +79,27 @@ class SeqAdage(ad.Adage):
             lr (flt): Learning rate, 0-1
             v (int): Verbose, 1-True, 0-False
         """
-        self.autoencoder = lae.LinkedAE(enc_dim, act2, dropout)
+        self.autoencoder = lae.LinkedAE(enc_dim, act2, dropout,kl1,kl2,init)
         self.all_comp = pd.read_csv(input_file, index_col=0)
         self.gene_num = np.size(self.all_comp, 0)
         self.encoding_dim = enc_dim
+        self.act = act2
+        self.dropout = dropout
         self.epochs = epochs
         self.seed = seed
         self.batch_size = batch_size
         self.lr = lr
+        self.kl1 = kl1
+        self.kl2 = kl2
+        self.init=init
         self.mm = mm
         self.v = v
         self.history = None
         self.input_file = input_file
+        #super().__init__(self.autoencoder, self.history, self.all_comp)
+
+    def get_act(self):
+        return self.act
 
     def prep_data(self):
         """Prepares training data by adding noise. Called by train_model()"""
@@ -105,7 +114,9 @@ class SeqAdage(ad.Adage):
 
         return(x_train, x_train_noisy)
 
-    def train_model(self):
+
+
+    def train_model_variable(self, ep):
         """Fits the autoencoder model to the training set."""
         np.random.seed(self.seed)
         x_train, x_train_noisy = self.prep_data()
@@ -115,7 +126,7 @@ class SeqAdage(ad.Adage):
 
         history = self.autoencoder.fit(x=x_train, 
                                   y=x_train_noisy, 
-                                  epochs=self.epochs,
+                                  epochs=ep,
                                   batch_size=self.batch_size,
                                   #shuffle=True,
                                   validation_split = 0.1,
@@ -125,6 +136,93 @@ class SeqAdage(ad.Adage):
         #self.autoencoder = autoencoder
         self.history = history
         return(self.autoencoder)
+
+    def train_model(self):
+        """Fits the autoencoder model to the training set."""
+        self.train_model_variable(self.epochs)
+
+    def pre_train_model(self):
+        """Fits the autoencoder model to the training set for 1/10th epochs."""
+        self.train_model_variable(self.epochs//10)
+        
+
+    def fine_tune_model(self, map_file, new_data, kl1=None, kl2=None, 
+                 act=None, act2=None,  epochs=None, 
+                  batch_size=None, dropout=None, mm=None, 
+                 lr=None,init=None):
+        """Fits the autoencoder model to new training set."""
+        # update hyper-params
+        if act is not None:
+            self.act = act
+        if act2 is not None:
+            self.act2 = act2
+        if epochs is not None:
+            self.epochs = epochs
+        if batch_size is not None:
+            self.batch_size = batch_size
+        if dropout is not None:
+            self.dropout = dropout
+        if mm is not None:
+            self.mm = mm
+        if lr is not None:
+            self.lr = lr
+        if kl1 is not None:
+            self.kl1 = kl1
+        if kl2 is not None:
+            self.kl2 = kl2
+        if init is not None:
+            self.init = init
+        
+        # get weights after pre-training
+        weights_prev, b_weights_prev, d_weights_prev = self.autoencoder.get_weights()[0:3]
+
+        # load mapping file between pre-training and fine-tuning domains
+        mapper = pd.read_csv(map_file, index_col=0)
+        new_weights = weights_prev.T.dot(mapper).T
+        new_d_weights = d_weights_prev.T.dot(mapper).T
+
+        # load new data
+        np.random.seed(self.seed)
+        self.all_comp = pd.read_csv(new_data, index_col=0)
+        x_train, x_train_noisy = self.prep_data()
+
+        # initialize a new data with new input shape
+        autoencoder2 = lae.LinkedAE(self.encoding_dim, self.act, self.dropout,self.kl1,self.kl2,self.init)
+        optim = optimizers.SGD(learning_rate=self.lr, momentum=self.mm) # lr=0.001, rho=0.95, epsilon=1e-07
+        autoencoder2.compile(optimizer=optim, 
+                        loss=losses.MeanSquaredError()) #BinaryCrossentropy(from_logits=False)) 
+        
+        history = autoencoder2.fit(x=x_train, 
+                                  y=x_train_noisy, 
+                                  epochs=1,
+                                  batch_size=self.batch_size,
+                                  #shuffle=True,
+                                  validation_split = 0.1,
+                                  verbose=self.v
+                                 )
+        # get initialized weights as background distribution
+        weights_tmp, b_weights_tmp, d_weights_tmp = autoencoder2.get_weights()[0:3]
+        new_weights[new_weights==0] = weights_tmp[new_weights==0]
+        new_d_weights[new_d_weights==0] = d_weights_tmp[new_d_weights==0]
+
+        # initialize to weights from mapping and background
+        autoencoder2.set_weights([new_weights, b_weights_prev, new_d_weights])
+
+        # fine-tune training
+        history = autoencoder2.fit(x=x_train, 
+                                  y=x_train_noisy, 
+                                  epochs=self.epochs,
+                                  batch_size=self.batch_size,
+                                  #shuffle=True,
+                                  validation_split = 0.1,
+                                  verbose=self.v
+                                 )
+        
+        print("fine-tuned")
+        self.autoencoder = autoencoder2
+        self.history = history
+        return(autoencoder2)
+
 
     def save_weights(self, out_dir, out_file):
         """
@@ -212,4 +310,6 @@ class SeqAdage(ad.Adage):
     		y = x_train_train,) 
         
         return(best_hps, tuner)
+
+
         

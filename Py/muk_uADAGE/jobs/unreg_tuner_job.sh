@@ -22,6 +22,7 @@
 # Initialize Conda for bash
 eval "$(conda shell.bash hook)"
 
+# Activate Conda environment
 conda activate /scratch/user/u.mt372094/conda/envs/uadage-conda
 
 # Environment configuration

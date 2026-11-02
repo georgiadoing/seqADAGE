@@ -242,7 +242,7 @@ class SeqAdage(ad.Adage):
     def tune_model(self, seed, u=[10,100,10],d=[0.0,0.9,0.1],
                   a1=["sigmoid","tanh","relu", "celu"], a2=["sigmoid","tanh","relu", "celu"],
                   i=["glorot_uniform","glorot_normal"],k1=[0,.15,.005],
-                  k2=[0,.9,.05],l=[.001,.1,.01],b=[5,100,5],m=[0.0,.9,.1]):
+                  k2=[0,.9,.05],l=[.001,.1,.01],b=[5,100,5],m=[0.0,.9,.1],sh=[False, True]):
         """
     	
     	"""
@@ -254,7 +254,8 @@ class SeqAdage(ad.Adage):
         # Automatically assign True/False values.
         act1 = hp.Choice('act1', a1)
         act2 = hp.Choice('act2', a2)
-        shuffle = hp.Boolean("shuffle", default=False)
+        # shuffle = hp.Boolean("shuffle", default=False)
+        shuffle = hp.Choice("shuffle", sh)
         init = hp.Choice('init', i) 
         kl1 = hp.Float('kl1', min_value = k1[0], max_value = k1[1], step = k1[2])
         kl2 = hp.Float('kl2', min_value = k2[0], max_value = k2[1], step = k2[2])
@@ -300,7 +301,7 @@ class SeqAdage(ad.Adage):
         tuner.results_summary() 
         num_trials = len(tuner.oracle.trials.values())
         best_hps = tuner.get_best_hyperparameters(num_trials)
-        best_models = tuner.get_best_models(num_trials)
+        # best_models = tuner.get_best_models(num_trials)
         #ss = tuner.search_space_summary(extended=True)
         
         model = tuner.hypermodel.build(best_hps[0])

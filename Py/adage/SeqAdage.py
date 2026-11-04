@@ -10,15 +10,15 @@ Usage
 
 """
 
+import tensorflow as tf
+from tensorflow.keras import optimizers, losses
+import keras_tuner
+
 from adage import Adage as ad
 from adage import LinkedAE as lae
 from adage import AdageHyperModel as ahm
 import pandas as pd
 import numpy as np
-from tensorflow.keras import optimizers, losses
-import keras_tuner
-
-
 
 class SeqAdage(ad.Adage): 
     """
@@ -242,7 +242,7 @@ class SeqAdage(ad.Adage):
     def tune_model(self, seed, u=[10,100,10],d=[0.0,0.9,0.1],
                   a1=["sigmoid","tanh","relu", "celu"], a2=["sigmoid","tanh","relu", "celu"],
                   i=["glorot_uniform","glorot_normal"],k1=[0,.15,.005],
-                  k2=[0,.9,.05],l=[.001,.1,.01],b=[5,100,5],m=[0.0,.9,.1]):
+                  k2=[0,.9,.05],l=[.001,.1,.01],b=[5,100,5],m=[0.0,.9,.1],sh=[False, True]):
         """
     	
     	"""
@@ -254,7 +254,8 @@ class SeqAdage(ad.Adage):
         # Automatically assign True/False values.
         act1 = hp.Choice('act1', a1)
         act2 = hp.Choice('act2', a2)
-        shuffle = hp.Boolean("shuffle", default=False)
+        # shuffle = hp.Boolean("shuffle", default=False)
+        shuffle = hp.Choice("shuffle", sh)
         init = hp.Choice('init', i) 
         kl1 = hp.Float('kl1', min_value = k1[0], max_value = k1[1], step = k1[2])
         kl2 = hp.Float('kl2', min_value = k2[0], max_value = k2[1], step = k2[2])
@@ -284,11 +285,12 @@ class SeqAdage(ad.Adage):
     							      int(x_train.shape[0]*0.9), replace=False)
     	#print(train_idxs[1:5])
         x_train_train = x_train[train_idxs,:]
-        x_train_test = x_train[~np.in1d(range(x_train.shape[0]),train_idxs),:]
+        # x_train_test = x_train[~np.in1d(range(x_train.shape[0]),train_idxs),:]
+        x_train_test = x_train[~np.isin(np.arange(x_train.shape[0]), train_idxs), :]
     
         x_train_noise_train = x_train_noisy[train_idxs,:]
-        x_train_noise_test = x_train_noisy[~np.in1d(range(x_train.shape[0]),
-    		                                              train_idxs),:]
+        # x_train_noise_test = x_train_noisy[~np.in1d(range(x_train.shape[0]), train_idxs),:]
+        x_train_noise_test = x_train_noisy[~np.isin(np.arange(x_train.shape[0]), train_idxs), :]
         
         #print(len(ss.space))
         
@@ -299,7 +301,7 @@ class SeqAdage(ad.Adage):
         tuner.results_summary() 
         num_trials = len(tuner.oracle.trials.values())
         best_hps = tuner.get_best_hyperparameters(num_trials)
-        best_models = tuner.get_best_models(num_trials)
+        # best_models = tuner.get_best_models(num_trials)
         #ss = tuner.search_space_summary(extended=True)
         
         model = tuner.hypermodel.build(best_hps[0])

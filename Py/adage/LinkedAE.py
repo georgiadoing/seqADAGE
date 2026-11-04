@@ -10,9 +10,9 @@ Usage
 
 """
 
-import keras
-from adage import DenseTranspose as dt
+from tensorflow import keras
 from tensorflow.keras import regularizers
+from adage import DenseTranspose as dt
 
 class LinkedAE(keras.models.Sequential):
     """

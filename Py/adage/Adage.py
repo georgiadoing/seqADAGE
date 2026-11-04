@@ -10,7 +10,6 @@ Usage
 """
 
 import os
-from keras.models import Model, Sequential
 import numpy as np
 import pandas
 from scipy.stats import hypergeom

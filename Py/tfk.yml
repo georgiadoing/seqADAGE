@@ -1,18 +1,17 @@
 name: tfk
 channels:
+  - conda-forge
   - defaults
-  - anaconda
 dependencies:
+  - python=3.10
   - jupyter
-  - matplotlib
-  - numpy
-  - scikit-learn
-  - tensorflow
-  - keras
   - pandas
   - matplotlib
-  - seaborn
   - numpy
   - scikit-learn
   - scipy
+  - seaborn
   - statsmodels
+  - tensorflow
+  - keras
+  - keras-tuner

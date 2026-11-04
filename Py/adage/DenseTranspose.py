@@ -11,7 +11,7 @@ Usage
 """
 
 import tensorflow as tf
-import keras
+from tensorflow import keras
 
 class DenseTranspose(keras.layers.Layer):
     """

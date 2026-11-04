@@ -16,12 +16,15 @@ Usage
 
 import tensorflow as tf
 from tensorflow import keras
+import keras_tuner as kt
+
+from tensorflow.keras import optimizers
+from adage import LinkedAE as lae
 
 import argparse
 import numpy as np
 import csv
 import pandas as pd
-
 
 from tensorflow.keras import optimizers, regularizers, layers, initializers, models
 from tensorflow.keras.layers import Input, Dense, Dropout
@@ -37,8 +40,6 @@ from adage import LinkedAE as lae
 
 #from DenseTranspose import DenseTranspose
 
-
-import keras_tuner as kt
 import matplotlib.pyplot as plt
 import os
 
@@ -109,7 +110,7 @@ class AdageHyperModel(kt.HyperModel):
         	#model.set_weights(self.init_weights)
 '''
         optim = optimizers.SGD(learning_rate=lr, momentum=mm) # lr=0.001, rho=0.95, epsilon=1e-07
-        model.compile(optimizer=optim,loss=tf.keras.losses.MeanSquaredError()) #BinaryCrossentropy(from_logits=False)) 
+        model.compile(optimizer=optim, loss=tf.keras.losses.MeanSquaredError()) #BinaryCrossentropy(from_logits=False)) 
         return(model)
 
     

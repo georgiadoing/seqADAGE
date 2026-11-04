@@ -20,3 +20,5 @@ Py/adage/__pycache__
 latent_interpretation/sepi_out_*
 latent_interpretation/saur_out_*
 latent_interpretation/core.dcc*
+.vscode.venv/
+Py/muk_uADAGE/data/
